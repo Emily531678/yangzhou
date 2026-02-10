@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>扬州六大景点</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Microsoft YaHei', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        header { 
+            text-align: center; 
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #2c5530;
+        }
+        h1 { 
+            color: #2c5530; 
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #4a7c59;
+            font-size: 1.1rem;
+        }
+        
+        /* 投票区域样式 */
+        .vote-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 40px;
+            border-left: 5px solid #2c5530;
+        }
+        .vote-title {
+            color: #2c5530;
+            font-size: 1.6rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .vote-title::before {
+            content: "🗳️";
+        }
+        .vote-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .vote-option {
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+        }
+        .vote-option:hover {
+            border-color: #4a7c59;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+        }
+        .vote-option.selected {
+            background: #e8f5e9;
+            border-color: #2c5530;
+            color: #2c5530;
+            font-weight: bold;
+        }
+        .vote-button {
+            background: #2c5530;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+        .vote-button:hover {
+            background: #4a7c59;
+            transform: scale(1.05);
+        }
+        .vote-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 投票结果样式 */
+        .results-section {
+            background: #f0f7ff;
+            border-radius: 12px;
+            padding: 25px;
+            margin-top: 20px;
+            display: none;
+        }
+        .results-title {
+            color: #2c5530;
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .results-title::before {
+            content: "📊";
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .result-item {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.08);
+        }
+        .result-name {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #333;
+        }
+        .result-bar-container {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .result-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #4a7c59, #2c5530);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+        .result-count {
+            text-align: right;
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .spots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+        }
+        .spot-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        .spot-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+        .spot-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 3px solid #2c5530;
+        }
+        .spot-info {
+            padding: 20px;
+        }
+        .spot-title {
+            color: #2c5530;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .spot-title::before {
+            content: "📍";
+        }
+        .spot-desc {
+            color: #555;
+            line-height: 1.6;
+            font-size: 1rem;
+        }
+        .spot-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+        .feature-tag {
+            background: #e8f5e9;
+            color: #2c5530;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 0.9rem;
+        }
+        @media (max-width: 768px) {
+            .container { padding: 20px; }
+            .spots-grid, .vote-options, .results-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌿 扬州六大著名景点</h1>
+            <p class="subtitle">"烟花三月下扬州" - 探索这座千年古城的美景</p>
+        </header>
+        
+        <!-- 新增：投票区域 -->
+        <section class="vote-section">
+            <h2 class="vote-title">你最想去的扬州景点是？</h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px;">请选择一个景点投票，查看大家的偏好</p>
+            
+            <div class="vote-options" id="voteOptions">
+                <div class="vote-option" data-place="瘦西湖">瘦西湖</div>
+                <div class="vote-option" data-place="个园">个园</div>
+                <div class="vote-option" data-place="何园">何园</div>
+                <div class="vote-option" data-place="大明寺">大明寺</div>
+                <div class="vote-option" data-place="东关街">东关街</div>
+                <div class="vote-option" data-place="古运河">古运河</div>
+            </div>
+            
+            <button class="vote-button" id="submitVote" disabled>投我一票</button>
+            
+            <!-- 投票结果区域 -->
+            <div class="results-section" id="resultsSection">
+                <h3 class="results-title">投票结果统计</h3>
+                <div class="results-grid" id="resultsGrid">
+                    <!-- 结果将通过JavaScript动态生成 -->
+                </div>
+                <p style="text-align: center; margin-top: 15px; color: #666; font-size: 0.9rem;">
+                    已收到 <span id="totalVotes">0</span> 份投票
+                </p>
+            </div>
+        </section>
+        
+        <div class="spots-grid">
+            <!-- 瘦西湖 -->
+            <div class="spot-card">
+                <img src="shouxihu.jpg" alt="瘦西湖">
+                <div class="spot-info">
+                    <h2 class="spot-title">瘦西湖</h2>
+                    <p class="spot-desc">国家5A级旅游景区，清代康乾时期形成的湖上园林群，窈窕曲折的湖道串以长堤春柳、四桥烟雨、徐园、小金山、五亭桥、白塔、二十四桥等景点，俨然一幅天然秀美的国画长卷。</p>
+                    <div class="spot-features">
+                        <span class="feature-tag">5A景区</span>
+                        <span class="feature-tag">园林景观</span>
+                        <span class="feature-tag">四季皆宜</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 个园 -->
+            <div class="spot-card">
+                <img src="geyuan.jpg" alt="个园">
+                <div class="spot-info">
+                    <h2 class="spot-title">个园</h2>
+                    <p class="spot-desc">中国四大名园之一，以遍植青竹而名，以春夏秋冬四季假山而胜。由两淮盐业商总黄至筠于清嘉庆23年（公元1818年）在原明代"寿芝园"的基础上拓建为住宅园林。</p>
+                    <div class="spot-features">
+                        <span class="feature-tag">四大名园</span>
+                        <span class="feature-tag">竹石园林</span>
+                        <span class="feature-tag">四季假山</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 何园 -->
+            <div class="spot-card">
+                <img src="heyuan.jpg" alt="何园">
+                <div class="spot-info">
+                    <h2 class="spot-title">何园</h2>
+                    <p class="spot-desc">又名"寄啸山庄"，被誉为"晚清第一园"，面积1.4万余平方米。何园由清光绪年间何芷舠所造，片石山房系石涛大师叠山作品，建筑中西合璧，复道回廊堪称一绝。</p>
+                    <div class="spot-features">
+                        <span class="feature-tag">晚清第一园</span>
+                        <span class="feature-tag">中西合璧</span>
+                        <span class="feature-tag">复道回廊</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 大明寺 -->
+            <div class="spot-card">
+                <img src="damingsi.jpg" alt="大明寺">
+                <div class="spot-info">
+                    <h2 class="spot-title">大明寺</h2>
+                    <p class="spot-desc">因初建于南朝宋孝武帝大明年间（457-464年）而得名。唐代鉴真法师曾在此住持，后东渡日本。寺内建有九层的栖灵塔，塔高70米，可俯瞰扬州全景。</p>
+                    <div class="spot-features">
+                        <span class="feature-tag">千年古寺</span>
+                        <span class="feature-tag">鉴真纪念</span>
+                        <span class="feature-tag">栖灵塔</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 东关街 -->
+            <div class="spot-card">
+                <img src="dongguanjie.jpg" alt="东关街">
+                <div class="spot-info">
+                    <h2 class="spot-title">东关街</h2>
+                    <p class="spot-desc">扬州最具代表性的历史老街，东至古运河边，西至国庆路，全长1122米。街面上市井繁华、商家林立，行当俱全，陆陈行、油米坊、鲜鱼行、八鲜行等近百家之多。</p>
+                    <div class="spot-features">
+                        <span class="feature-tag">历史老街</span>
+                        <span class="feature-tag">美食云集</span>
+                        <span class="feature-tag">商业文化</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 古运河 -->
+            <div class="spot-card">
+                <img src="dayunhe.jpg" alt="古运河">
+                <div class="spot-info">
+                    <h2 class="spot-title">古运河</h2>
+                    <p class="spot-desc">京杭大运河中最古老的一段，扬州境内运河与2000多年前的古邗沟路线大部分吻合。古运河扬州城区段从瓜洲至湾头全长约30公里，构成著名的"扬州三湾"。</p>
+                    <div class="spot-features">
+                        <span class="feature-tag">世界遗产</span>
+                        <span class="feature-tag">夜游项目</span>
+                        <span class="feature-tag">运河文化</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2026 扬州景点介绍 | 使用本地图片展示扬州美景</p>
+        </footer>
+    </div>
+    
+    <script>
+        // 初始化投票数据
+        let voteData = {
+            "瘦西湖": 0,
+            "个园": 0,
+            "何园": 0,
+            "大明寺": 0,
+            "东关街": 0,
+            "古运河": 0
+        };
+        
+        let selectedPlace = null;
+        let hasVoted = false;
+        
+        // 页面加载时从本地存储读取数据
+        document.addEventListener('DOMContentLoaded', function() {
+            const savedData = localStorage.getItem('yangzhouVoteData');
+            const userVote = localStorage.getItem('yangzhouUserVote');
+            
+            if (savedData) {
+                voteData = JSON.parse(savedData);
+            }
+            
+            if (userVote) {
+                hasVoted = true;
+                selectedPlace = userVote;
+                // 禁用投票按钮并显示结果
+                document.getElementById('submitVote').disabled = true;
+                document.getElementById('submitVote').textContent = '已投票';
+                showResults();
+            }
+            
+            // 更新总票数显示
+            updateTotalVotes();
+            
+            // 初始化选项点击事件
+            const options = document.querySelectorAll('.vote-option');
+            options.forEach(option => {
+                option.addEventListener('click', function() {
+                    if (hasVoted) return;
+                    
+                    // 移除之前的选择
+                    options.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // 标记当前选择
+                    this.classList.add('selected');
+                    selectedPlace = this.getAttribute('data-place');
+                    
+                    // 启用投票按钮
+                    document.getElementById('submitVote').disabled = false;
+                });
+            });
+            
+            // 投票按钮点击事件
+            document.getElementById('submitVote').addEventListener('click', function() {
+                if (!selectedPlace || hasVoted) return;
+                
+                // 更新投票数据
+                voteData[selectedPlace]++;
+                
+                // 保存到本地存储
+                localStorage.setItem('yangzhouVoteData', JSON.stringify(voteData));
+                localStorage.setItem('yangzhouUserVote', selectedPlace);
+                
+                hasVoted = true;
+                this.disabled = true;
+                this.textContent = '已投票';
+                
+                // 显示结果
+                showResults();
+                
+                // 显示感谢消息
+                alert(`感谢您的投票！您选择了「${selectedPlace}」。`);
+            });
+            
+            // 简单的图片加载检查
+            const images = document.querySelectorAll('img');
+            images.forEach(img => {
+                img.onerror = function() {
+                    console.warn('图片加载失败：' + img.alt);
+                    this.style.border = '2px dashed red';
+                    this.alt = '图片加载失败：' + this.alt;
+                };
+                img.onload = function() {
+                    console.log('图片加载成功：' + img.alt);
+                };
+            });
+        });
+        
+        // 显示投票结果
+        function showResults() {
+            const resultsSection = document.getElementById('resultsSection');
+            const resultsGrid = document.getElementById('resultsGrid');
+            
+            // 显示结果区域
+            resultsSection.style.display = 'block';
+            
+            // 计算总票数
+            const total = Object.values(voteData).reduce((a, b) => a + b, 0);
+            
+            // 清空现有结果
+            resultsGrid.innerHTML = '';
+            
+            // 生成结果项
+            for (const [place, count] of Object.entries(voteData)) {
+                const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
+                
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <div class="result-name">
+                        <span>${place}</span>
+                        <span>${percentage}%</span>
+                    </div>
+                    <div class="result-bar-container">
+                        <div class="result-bar" style="width: ${percentage}%"></div>
+                    </div>
+                    <div class="result-count">${count} 票</div>
+                `;
+                
+                resultsGrid.appendChild(resultItem);
+            }
+            
+            // 更新总票数显示
+            updateTotalVotes();
+            
+            // 如果用户已投票，高亮他们选择的项目
+            if (selectedPlace) {
+                const resultItems = document.querySelectorAll('.result-item');
+                resultItems.forEach(item => {
+                    const placeName = item.querySelector('.result-name span').textContent;
+                    if (placeName === selectedPlace) {
+                        item.style.border = '2px solid #2c5530';
+                        item.style.background = '#f0f7f0';
+                    }
+                });
+            }
+        }
+        
+        // 更新总票数显示
+        function updateTotalVotes() {
+            const total = Object.values(voteData).reduce((a, b) => a + b, 0);
+            document.getElementById('totalVotes').textContent = total;
+        }
+    </script>
+</body>
+</html>
